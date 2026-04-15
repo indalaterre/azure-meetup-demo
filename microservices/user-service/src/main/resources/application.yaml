@@ -1,0 +1,30 @@
+quarkus:
+  application:
+    name: user-service
+
+  datasource:
+    db-kind: postgresql
+    devservices:
+      enabled: true
+
+  hibernate-orm:
+    database:
+      generation: drop-and-create
+    log:
+      sql: true
+
+  http:
+    port: 8081
+
+  index-dependency:
+    azure-json:
+      group-id: com.azure
+      artifact-id: azure-json
+
+  container-image:
+    builder: jib
+    registry: acrglobalazurepuglia.azurecr.io
+    group: microservices
+    name: user-service
+    tag: latest
+    push: true

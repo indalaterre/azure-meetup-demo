@@ -1,0 +1,61 @@
+# =============================================================================
+# Legacy Monolith - E-Commerce Application Configuration
+# =============================================================================
+
+quarkus:
+  datasource:
+    db-kind: postgresql
+    devservices:
+      enabled: true
+
+  hibernate-orm:
+    database:
+      generation: drop-and-create
+    log:
+      sql: true
+
+  http:
+    port: 10990
+
+  banner:
+    enabled: true
+
+  index-dependency:
+    azure-json:
+      group-id: com.azure
+      artifact-id: azure-json
+
+  container-image:
+    builder: jib
+    registry: acrglobalazurepuglia.azurecr.io
+    group: legacy-monolith
+    name: legacy-monolith
+    tag: latest
+    push: true
+
+"%native":
+  quarkus:
+    container-image:
+      tag: native
+
+"%jvm":
+  quarkus:
+    container-image:
+      tag: jvm
+
+"%test-local":
+  quarkus:
+    datasource:
+      username: demo
+      password: demo
+      jdbc:
+        url: jdbc:postgresql://localhost:6000/legacymonolith
+
+# =============================================================================
+# NATIVE IMAGE — Intentionally NOT configured.
+# We do NOT provide reflect-config.json or other GraalVM metadata.
+# Running 'mvn package -Pnative' WILL FAIL because of:
+#   - Apache Commons BeanUtils 1.8.3 (heavy reflection, no reachability metadata)
+#   - LegacyIntrospector using Class.forName() at runtime
+#   - Dynamic proxy generation in MonolithService
+# =============================================================================

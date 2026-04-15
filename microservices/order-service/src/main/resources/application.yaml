@@ -1,0 +1,35 @@
+quarkus:
+  application:
+    name: order-service
+
+  datasource:
+    db-kind: postgresql
+    devservices:
+      enabled: true
+
+  hibernate-orm:
+    database:
+      generation: drop-and-create
+    log:
+      sql: true
+
+  http:
+    port: 8082
+
+  index-dependency:
+    azure-json:
+      group-id: com.azure
+      artifact-id: azure-json
+
+  container-image:
+    builder: jib
+    registry: acrglobalazurepuglia.azurecr.io
+    group: microservices
+    name: order-service
+    tag: latest
+    push: true
+
+  # REST Client configuration — points to user-service
+  rest-client:
+    user-service:
+      url: http://localhost:8081

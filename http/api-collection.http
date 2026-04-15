@@ -1,0 +1,398 @@
+### =============================================================================
+### HEALTH CHECKS
+### =============================================================================
+
+### Monolith JVM - Health
+GET {{monolith-jvm}}/q/health
+
+> {%
+    client.test("Monolith JVM health", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### Monolith Native - Health
+GET {{monolith-native}}/q/health
+
+> {%
+    client.test("Monolith Native health", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### User Service - Health
+GET {{user-service}}/q/health
+
+> {%
+    client.test("User Service health", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### Order Service - Health
+GET {{order-service}}/q/health
+
+> {%
+    client.test("Order Service health", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### =============================================================================
+### MONOLITH — Users (DB: legacymonolith)
+### =============================================================================
+
+### [Monolith] List all users
+GET {{monolith-jvm}}/api/users
+
+> {%
+    client.test("List users", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith Native] List all users
+GET {{monolith-native}}/api/users
+
+> {%
+    client.test("Native list users", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith] Create user
+POST {{monolith-jvm}}/api/users
+Content-Type: application/json
+
+{
+  "username": "mrossi",
+  "email": "mario.rossi@cgm.com",
+  "fullName": "Mario Rossi",
+  "address": "Bari, Italy",
+  "phone": "+39 080 123456"
+}
+
+> {%
+    client.test("Create user", function() {
+        client.assert(response.status === 201, "Expected 201, got " + response.status);
+        client.assert(response.body.id, "Missing id in response");
+    });
+    client.global.set("monolith_user_id", response.body.id);
+%}
+
+### [Monolith] Get user by ID
+GET {{monolith-jvm}}/api/users/{{monolith_user_id}}
+
+> {%
+    client.test("Get user by ID", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith Native] Get user by ID
+GET {{monolith-native}}/api/users/{{monolith_user_id}}
+
+> {%
+    client.test("Native get user by ID", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith] Update user
+PUT {{monolith-jvm}}/api/users/{{monolith_user_id}}
+Content-Type: application/json
+
+{
+  "username": "mrossi",
+  "email": "mario.rossi@updated.com",
+  "fullName": "Mario Rossi Updated",
+  "address": "Lecce, Italy",
+  "phone": "+39 080 999888"
+}
+
+> {%
+    client.test("Update user", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith] Delete user
+DELETE {{monolith-jvm}}/api/users/{{monolith_user_id}}
+
+> {%
+    client.test("Delete user", function() {
+        client.assert(response.status === 204, "Expected 204, got " + response.status);
+    });
+%}
+
+### =============================================================================
+### MONOLITH — Orders (DB: legacymonolith)
+### =============================================================================
+
+### [Monolith] List all orders
+GET {{monolith-jvm}}/api/orders
+
+> {%
+    client.test("List orders", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith] Create order
+POST {{monolith-jvm}}/api/orders
+Content-Type: application/json
+
+{
+  "userId": {{monolith_user_id}},
+  "product": "Quarkus in Action",
+  "quantity": 2,
+  "totalPrice": 59.98
+}
+
+> {%
+    client.test("Create order", function() {
+        client.assert(response.status === 201, "Expected 201, got " + response.status);
+        client.assert(response.body.id, "Missing id in response");
+    });
+    client.global.set("monolith_order_id", response.body.id);
+%}
+
+### [Monolith Native] Create order
+POST {{monolith-native}}/api/orders
+Content-Type: application/json
+
+{
+  "userId": {{monolith_user_id}},
+  "product": "Quarkus in Action",
+  "quantity": 2,
+  "totalPrice": 120
+}
+
+> {%
+    client.test("Native create order", function() {
+        client.assert(response.status === 201, "Expected 201, got " + response.status);
+    });
+%}
+
+### [Monolith] Get order by ID
+GET {{monolith-jvm}}/api/orders/{{monolith_order_id}}
+
+> {%
+    client.test("Get order by ID", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith] Get orders by user
+GET {{monolith-jvm}}/api/orders/user/{{monolith_user_id}}
+
+> {%
+    client.test("Get orders by user", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith] Update order status
+PUT {{monolith-jvm}}/api/orders/{{monolith_order_id}}/status
+Content-Type: application/json
+
+{
+  "status": "CONFIRMED"
+}
+
+> {%
+    client.test("Update order status", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith] Delete order
+DELETE {{monolith-jvm}}/api/orders/{{monolith_order_id}}
+
+> {%
+    client.test("Delete order", function() {
+        client.assert(response.status === 204, "Expected 204, got " + response.status);
+    });
+%}
+
+### =============================================================================
+### MONOLITH — Legacy Endpoints (reflection-heavy, breaks native)
+### =============================================================================
+
+### [Monolith] Dynamic business component (default)
+GET {{monolith-jvm}}/api/legacy/dynamic
+
+> {%
+    client.test("Dynamic business component", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith] Dynamic business component (custom operation)
+GET {{monolith-jvm}}/api/legacy/dynamic?operation=custom
+
+> {%
+    client.test("Dynamic business component custom", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith] Introspect user entity
+GET {{monolith-jvm}}/api/legacy/introspect/user/{{monolith_user_id}}
+
+> {%
+    client.test("Introspect user", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [Monolith] Introspect order entity
+GET {{monolith-jvm}}/api/legacy/introspect/order/{{monolith_order_id}}
+
+> {%
+    client.test("Introspect order", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### =============================================================================
+### MICROSERVICE — User Service (DB: usersdb)
+### =============================================================================
+
+### [UserService] List all users
+GET {{user-service}}/api/users
+
+> {%
+    client.test("US list users", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [UserService] Create user
+POST {{user-service}}/api/users
+Content-Type: application/json
+
+{
+  "username": "lverdi",
+  "email": "luigi.verdi@cgm.com",
+  "fullName": "Luigi Verdi",
+  "address": "Lecce, Italy",
+  "phone": "+39 0832 111222"
+}
+
+> {%
+    client.test("US create user", function() {
+        client.assert(response.status === 201, "Expected 201, got " + response.status);
+        client.assert(response.body.id, "Missing id in response");
+    });
+    client.global.set("us_user_id", response.body.id);
+%}
+
+### [UserService] Get user by ID
+GET {{user-service}}/api/users/{{us_user_id}}
+
+> {%
+    client.test("US get user by ID", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [UserService] Update user
+PUT {{user-service}}/api/users/{{us_user_id}}
+Content-Type: application/json
+
+{
+  "username": "lverdi",
+  "email": "luigi.verdi@updated.com",
+  "fullName": "Luigi Verdi Updated",
+  "address": "Taranto, Italy",
+  "phone": "+39 099 333444"
+}
+
+> {%
+    client.test("US update user", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [UserService] Delete user
+DELETE {{user-service}}/api/users/{{us_user_id}}
+
+> {%
+    client.test("US delete user", function() {
+        client.assert(response.status === 204, "Expected 204, got " + response.status);
+    });
+%}
+
+### =============================================================================
+### MICROSERVICE — Order Service (DB: ordersdb, calls user-service via REST)
+### =============================================================================
+
+### [OrderService] List all orders
+GET {{order-service}}/api/orders
+
+> {%
+    client.test("OS list orders", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [OrderService] Create order (validates user via REST call to user-service)
+POST {{order-service}}/api/orders
+Content-Type: application/json
+
+{
+  "userId": {{us_user_id}},
+  "product": "Quarkus Book",
+  "quantity": 1,
+  "totalPrice": 29.99
+}
+
+> {%
+    client.test("OS create order", function() {
+        client.assert(response.status === 201, "Expected 201, got " + response.status);
+        client.assert(response.body.id, "Missing id in response");
+    });
+    client.global.set("os_order_id", response.body.id);
+%}
+
+### [OrderService] Get order by ID
+GET {{order-service}}/api/orders/{{os_order_id}}
+
+> {%
+    client.test("OS get order by ID", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [OrderService] Get orders by user
+GET {{order-service}}/api/orders/user/{{us_user_id}}
+
+> {%
+    client.test("OS get orders by user", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [OrderService] Update order status
+PUT {{order-service}}/api/orders/{{os_order_id}}/status
+Content-Type: application/json
+
+{
+  "status": "SHIPPED"
+}
+
+> {%
+    client.test("OS update order status", function() {
+        client.assert(response.status === 200, "Expected 200, got " + response.status);
+    });
+%}
+
+### [OrderService] Delete order
+DELETE {{order-service}}/api/orders/{{os_order_id}}
+
+> {%
+    client.test("OS delete order", function() {
+        client.assert(response.status === 204, "Expected 204, got " + response.status);
+    });
+%}
