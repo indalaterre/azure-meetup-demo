@@ -1,8 +1,11 @@
 # =============================================================================
-# Legacy Monolith - E-Commerce Application Configuration
+# Modular Monolith - E-Commerce Application Configuration
 # =============================================================================
 
 quarkus:
+  application:
+    name: modular-monolith
+
   datasource:
     db-kind: postgresql
     devservices:
@@ -49,13 +52,4 @@ quarkus:
       username: demo
       password: demo
       jdbc:
-        url: jdbc:postgresql://localhost:6000/legacymonolith
-
-# =============================================================================
-# NATIVE IMAGE — Intentionally NOT configured.
-# We do NOT provide reflect-config.json or other GraalVM metadata.
-# Running 'mvn package -Pnative' WILL FAIL because of:
-#   - Apache Commons BeanUtils 1.8.3 (heavy reflection, no reachability metadata)
-#   - LegacyIntrospector using Class.forName() at runtime
-#   - Dynamic proxy generation in MonolithService
-# =============================================================================
+        url: jdbc:postgresql://localhost:6000/modularmonolith
